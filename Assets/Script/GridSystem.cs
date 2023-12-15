@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GridSystem {
@@ -7,13 +8,19 @@ public class GridSystem {
     private int width;
     private int height;
     private float cellSize;
-    public GridSystem(int x, int height, float cellSize) {
-        this.width = x;
+    private GridObject[,] gridObjectArray;
+    public GridSystem(int width, int height, float cellSize) {
+        this.width = width;
         this.height = height;
         this.cellSize = cellSize;
-        for(int i = 0; i < width; i++) {
+        
+        gridObjectArray = new GridObject[width, height];
+
+
+        for (int i = 0; i < this.width; i++) {
             for(int j = 0; j < this.height; j++) {
-                Debug.DrawLine(GetWorldPosition(i,j), GetWorldPosition(i,j) + Vector3.right * .2f, Color.white,10000);
+                GridPosition gridPosition = new GridPosition(i, j);
+                gridObjectArray[i,j] = new GridObject(gridPosition, this);
             }
         }
 
@@ -26,9 +33,18 @@ public class GridSystem {
 
     public GridPosition GetGridPosition(Vector3 worldposition) {
         return new GridPosition(
-            Mathf.FloorToInt(worldposition.x/cellSize),
-            Mathf.FloorToInt(worldposition.z/cellSize)
+            Mathf.RoundToInt(worldposition.x/cellSize),
+            Mathf.RoundToInt(worldposition.z/cellSize)
             );
+    }
+
+    public void CreateDebugObjects(Transform debugPrefab) {
+        for (int i = 0; i < this.width; i++) {
+            for (int j = 0; j < this.height; j++) {
+              var debugObject = GameObject.Instantiate(debugPrefab, GetWorldPosition(i, j), Quaternion.identity);
+                debugObject.GetComponentInChildren<TextMeshPro>().text = $"[{i},{j}]";
+            }
+        }
     }
 
 
